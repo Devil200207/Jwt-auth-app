@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require("jsonwebtoken");
+const {authMiddleware} = require("middleware.js");
 
 const app = express();
 const PORT = 3000;
@@ -47,53 +48,17 @@ app.post("/signin",(req,res) =>{
 
 })
 
-app.post("/notes",(req,res) =>{
+app.post("/notes",authMiddleware,(req,res) =>{
 
-    const token = req.headers.token;
-
-    if(!token)
-    {
-        res.status(400).send({
-            message:"you are not authenticated"
-        })
-    }
-
-    const decoded = jwt.verify(token,sectret);
-    const username = decoded.username;
-
-    if(!username)
-    {
-        res.status(401).send({
-            message:"User not found"
-        })
-    }
-
-
+    req.username = username
 
     const newnotes = {username:username,title:req.body.title};
     Notes.push(newnotes);
     res.json(newnotes);
 })
 
-app.get("/notes",(req,res)=>{
-    const token = req.headers.token;
-
-    if(!token)
-    {
-        res.status(400).send({
-            message:"you are not authenticated"
-        })
-    }
-
-    const decoded = jwt.verify(token,sectret);
-    const username = decoded.username;
-
-    if(!username)
-    {
-        res.status(401).send({
-            message:"User not found"
-        })
-    }
+app.get("/notes",authMiddleware,(req,res)=>{
+    const username = req.username;
 
     const all_usertoken = Notes.filter(notes => notes.username === username);
 
