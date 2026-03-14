@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    </head>
+    <body>
+        <div>
+            <div id="notes">
+                Loading.....
+            </div>
+            <div>
+                <input type="text" id="userNote">
+                <button onclick="addnotes()">add note</button>
+            </div>
+        </div>
+    <script>
+        async function addnotes()
+        {
+            
+            await axios.post("http://localhost:3000/notes",{
+                title:document.getElementById("userNote").value
+            },{
+                headers:{
+                    token: localStorage.getItem("token")
+                }
+            })
+
+            document.getElementById("userNote").innerHTML = "";
+            await getTodos();
+        }
+        async function getTodos(){
+            const responce = await axios.get("http://localhost:3000/notes",{
+                headers:{
+                    token: localStorage.getItem("token")
+                }
+            });
+            const notes = responce.data.notes;
+            document.getElementById("notes").innerHTML = ""
+            for(let i=0;i<notes.length;i++)
+            {
+                const newNote = document.createElement("div")
+                newNote.innerHTML = notes[i].title;
+                document.getElementById("notes").appendChild(newNote);
+            }
+        }
+        getTodos();
+    </script>
+    </body>
+</html>
